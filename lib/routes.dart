@@ -12,10 +12,6 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => const HomePage(),
         );
-      case articlePage:
-        return MaterialPageRoute(
-          builder: (_) => const ArticlePage(),
-        );
       default:
         throw const FormatException("Route not found");
     }

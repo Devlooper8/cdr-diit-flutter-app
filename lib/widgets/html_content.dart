@@ -13,45 +13,45 @@ class HtmlContentWidget extends StatelessWidget {
         '.field-name-body'); // Replace with your actual CSS selector
 
     if (fieldNameBody != null) {
-      List<dom.Element> itemEvenElements = fieldNameBody.querySelectorAll(
-          '.item-even'); // Replace with your actual CSS selector
+      dom.Element? firstItemEvenElement = fieldNameBody.querySelector(
+          'div.field-item.even'); // Replace with your actual CSS selector to select the first element
 
       List<Widget> widgets = [];
 
-      for (dom.Element itemEvenElement in itemEvenElements) {
-        List<dom.Element> children = itemEvenElement.children;
-        if (itemEvenElement.localName!.toLowerCase().contains('img')) {
-          // Check if there are multiple children and if any child contains "currentsrc" attribute
-          if (children
-              .any((element) => element.attributes.containsKey('src'))) {
-            List<String> imageUrls = [];
+      if (firstItemEvenElement != null) {
+        List<dom.Element> children = firstItemEvenElement.children;
 
-            for (dom.Element childElement in children) {
-              // Check if the current child has a "src" attribute
-              String? currentSrc = childElement.attributes['src'];
-              if (currentSrc != null) {
-                imageUrls.add(currentSrc);
+        for (dom.Element child in children) {
+          if (child.className.toLowerCase().contains('images')) {
+            List<String> imageUrls = [];
+            for (dom.Element imageChild in child.children) {
+              if (imageChild.localName != null &&
+                  !imageChild.localName!.contains('iframe')) {
+                String? currentSrc = imageChild.attributes['href'];
+                if (currentSrc != null) {
+                  imageUrls.add(currentSrc);
+                }
               }
             }
-
-            // Create a row of cached images using the image URLs
             widgets.add(
               Row(
                 children: imageUrls.map((imageUrl) {
-                  return CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    placeholder: (context, url) =>
-                        const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
+                  return Expanded(
+                    child: CachedNetworkImage(
+                      fit: BoxFit.cover, // This will make the image cover the whole width
+                      imageUrl: imageUrl,
+                      placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) =>
+                      const Icon(Icons.error),
+                    ),
                   );
                 }).toList(),
               ),
             );
-          }
+          } else {}
         }
       }
-
       return Column(
         children: widgets,
       );

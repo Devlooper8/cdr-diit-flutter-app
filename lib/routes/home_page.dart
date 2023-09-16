@@ -3,6 +3,8 @@ import 'package:cdr_app/widgets/image_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'article_page.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -16,12 +18,11 @@ class HomePage extends StatelessWidget {
         triggerMode: RefreshIndicatorTriggerMode.onEdge,
         onRefresh: () async {
           // You can add loading indicators or error handling here
-           final articleModel = context.read<ArticleModel>();
-           await articleModel.fetchData();
+          final articleModel = context.read<ArticleModel>();
+          await articleModel.fetchData();
         },
-        child: Consumer<ArticleModel>(
-          builder: (context, articleModel, child) {
-            return ListView.builder(
+        child: Consumer<ArticleModel>(builder: (context, articleModel, child) {
+          return ListView.builder(
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
               itemCount: articleModel.jsonDataList.length, // Adjust as needed
@@ -33,16 +34,25 @@ class HomePage extends StatelessWidget {
                   imageUrl: graph.image.url,
                   headline: graph.headline,
                   intro: graph.description,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ArticlePage(
+                          imageUrl: graph.image.url,
+                          headline: graph.headline,
+                          intro: graph.description,
+                          articleUrl: graph.mainEntityOfPage,
+                        ),
+                      ),
+                    );
+                  },
                 );
-              },
-            );
-          },
-        ),
+              });
+        }),
       ),
     );
   }
 }
-
 
 class _KeepAliveImageListTile extends StatefulWidget {
   const _KeepAliveImageListTile({
@@ -57,10 +67,12 @@ class _KeepAliveImageListTile extends StatefulWidget {
   final String headline;
   final String intro;
   final VoidCallback? onTap; // Define the onTap callback
-  final VoidCallback? onBookmarkPressed; // Define the onBookmarkPressed callback
+  final VoidCallback?
+      onBookmarkPressed; // Define the onBookmarkPressed callback
 
   @override
-  State<_KeepAliveImageListTile> createState() => _KeepAliveImageListTileState();
+  State<_KeepAliveImageListTile> createState() =>
+      _KeepAliveImageListTileState();
 }
 
 class _KeepAliveImageListTileState extends State<_KeepAliveImageListTile>
@@ -76,7 +88,8 @@ class _KeepAliveImageListTileState extends State<_KeepAliveImageListTile>
       headline: widget.headline,
       intro: widget.intro,
       onTap: widget.onTap, // Pass the onTap callback to ImageListTile
-      onBookmarkPressed: widget.onBookmarkPressed, // Pass the onBookmarkPressed callback to ImageListTile
+      onBookmarkPressed: widget
+          .onBookmarkPressed, // Pass the onBookmarkPressed callback to ImageListTile
     );
   }
 }
