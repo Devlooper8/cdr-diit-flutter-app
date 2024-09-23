@@ -1,23 +1,30 @@
-import 'package:cdr_app/routes/article_page.dart';
-import 'package:cdr_app/routes/home_page.dart';
-import 'package:flutter/material.dart';
+import 'package:cdr_app/screens/article/article.controller.dart';
+import 'package:cdr_app/screens/article/article.screen.dart';
+import 'package:cdr_app/screens/home/home.controller.dart';
+import 'package:cdr_app/screens/home/home.screen.dart';
+import 'package:get/get.dart';
 
-class RouteGenerator {
-  static const String homePage = '/';
-  static const String articlePage = '/articlePage';
-  RouteGenerator._();
-  static Route<dynamic> generateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case homePage:
-        return MaterialPageRoute(
-          builder: (_) => const HomePage(),
-        );
-      default:
-        throw const FormatException("Route not found");
-    }
-  }
-}
-class RouteException implements Exception {
-  final String message;
-  const RouteException( this.message);
-}
+var routes = [
+  GetPage(
+    name: '/',
+    page: () => const HomeScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<HomeScreenController>(() => HomeScreenController());
+      })
+  ),
+  GetPage(
+    name: '/article',
+    page: () => const ArticleScreen(),
+    binding: BindingsBuilder(() {
+      Get.lazyPut<ArticleScreenController>(() => ArticleScreenController());
+    }),
+  ),
+/*
+  GetPage(
+      name: '/bookmarks',
+      page: () => const SignInScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<SignInController>(() => SignInController());
+      })),
+  */
+];

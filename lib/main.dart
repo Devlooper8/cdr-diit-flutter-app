@@ -1,23 +1,12 @@
-import 'package:cdr_app/models/providers/article_model.dart';
-import 'package:cdr_app/routes.dart';
+
+import 'package:cdr_app/cdr.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main(){
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => ArticleModel()..fetchData(), // Fetch data here
-      child: const MaterialApp(
-        initialRoute: RouteGenerator.homePage,
-        onGenerateRoute: RouteGenerator.generateRoute,
-      ),
-    );
-  }
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((_) {
+    runApp(const Cdr());
+  });
 }

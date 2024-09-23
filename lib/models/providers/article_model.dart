@@ -1,9 +1,11 @@
 import 'dart:convert';
-import 'package:cdr_app/models/json/article/article.dart';
+
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+
+import '../article/article.dart';
 
 
 class ArticleModel with ChangeNotifier {
