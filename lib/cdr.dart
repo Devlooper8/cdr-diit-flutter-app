@@ -25,7 +25,7 @@ class Cdr extends StatelessWidget {
         title: "CDR.CZ",
         theme: Themes.lightTheme,  // Set the light theme here
         darkTheme: Themes.darkTheme,  // Set the dark theme here
-        themeMode: ThemeMode.dark,
+        themeMode: ThemeMode.light,
         // home: const SignInScreen(),
         home: const HomeScreen(),
     );

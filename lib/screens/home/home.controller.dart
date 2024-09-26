@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -8,7 +9,23 @@ class HomeScreenController extends GetxController {
   var jsonDataList = <Article>[].obs;
   var currentPage = 0.obs; // Observable to track the current page
   var isLoading = false.obs; // To track if data is being fetched
+  var isSearching = false.obs;
+  final TextEditingController searchController = TextEditingController();
 
+  void toggleSearch() {
+    isSearching.value = !isSearching.value;
+  }
+
+  void clearSearch() {
+    searchController.clear();
+    // Add any logic to handle the clear action, like reloading original data
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
+  }
   @override
   void onInit() {
     super.onInit();

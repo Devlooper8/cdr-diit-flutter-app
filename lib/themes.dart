@@ -8,6 +8,8 @@ class Themes {
   static const Color backgroundColorLight = Color(0xFFFFFFFF);
   static const Color backgroundColorLightAlt = Color(0xFFe9f3f9);
   static const Color backgroundColorDark = Color(0xFF171717);
+  static const Color drawerColorDark = Color(0xFF202020);
+  static const Color drawerColorLight = primaryColor;
   static const Color cardColorLight = Color(0xFFFFFFFF);
   static const Color cardColorDark = Color(0xFF2f2f2f);
   static const Color textColorLight = Colors.black87;
@@ -16,6 +18,9 @@ class Themes {
 
   // Light theme
   static final ThemeData lightTheme = ThemeData(
+    drawerTheme: const DrawerThemeData(
+      backgroundColor: drawerColorLight
+    ),
     brightness: Brightness.light,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: backgroundColorLight,
@@ -56,11 +61,14 @@ class Themes {
 
   // Dark theme
   static final ThemeData darkTheme = ThemeData(
+    drawerTheme: const DrawerThemeData(
+        backgroundColor: drawerColorDark
+    ),
     brightness: Brightness.dark,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: backgroundColorDark,
     appBarTheme: const AppBarTheme(
-      backgroundColor: Colors.transparent, // Make the appbar transparent in dark mode
+      backgroundColor: Color(0xFF202020), // Make the appbar transparent in dark mode
       elevation: 0,
       iconTheme: IconThemeData(color: whiteColor),
       titleTextStyle: TextStyle(

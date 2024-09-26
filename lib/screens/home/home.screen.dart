@@ -26,12 +26,46 @@ class HomeScreen extends GetView<HomeScreenController> {
         centerTitle: true,
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor, // Use theme app bar color
         elevation: 0,
-        title: Text(
-          "Články",
-          style: Theme.of(context).textTheme.headlineLarge, // Use theme text style for the title
-        ),
+        title: Obx(() {
+          return controller.isSearching.value
+              ? TextField(
+            controller: controller.searchController,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Search articles...',
+              border: InputBorder.none,
+              hintStyle: Theme.of(context).textTheme.bodyLarge,
+            ),
+            style: Theme.of(context).textTheme.bodyLarge,
+            onChanged: (value) {
+              // Add logic here to filter the articles list as the user types
+            },
+          )
+              : Text(
+            "Články",
+            style: Theme.of(context).textTheme.headlineLarge, // Use theme text style for the title
+          );
+        }),
+        actions: [
+          Obx(() {
+            return controller.isSearching.value
+                ? IconButton(
+              icon: const Icon(Icons.clear),
+              onPressed: () {
+                controller.clearSearch();
+                controller.toggleSearch();
+              },
+            )
+                : IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                controller.toggleSearch();
+              },
+            );
+          }),
+        ],
       ),
-      endDrawer: const CdrDrawer(),
+      drawer: const CdrDrawer(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
