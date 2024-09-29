@@ -3,32 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 
-class WebsiteController extends GetxController {
-  var selectedWebsite = 'cdr'.obs;
-
-  void switchWebsite(String website) {
-    selectedWebsite.value = website;
-  }
-
-  int get selectedIndex => selectedWebsite.value == 'cdr' ? 0 : 1;
-}
-
 class CdrDrawer extends StatefulWidget {
-  const CdrDrawer({Key? key}) : super(key: key);
+  const CdrDrawer({super.key});
 
   @override
-  _CdrDrawerState createState() => _CdrDrawerState();
+  State<CdrDrawer> createState() => _CdrDrawerState();
 }
 
 class _CdrDrawerState extends State<CdrDrawer> {
-  final WebsiteController controller = Get.put(WebsiteController());
+  String selectedWebsite = 'cdr';
+  bool isUserInteracting = false;
   late PageController _pageController;
-  bool _isUserInteracting = false; // Flag to detect user interaction
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: controller.selectedIndex);
+    _pageController = PageController(initialPage: selectedIndex);
+  }
+
+  int get selectedIndex => selectedWebsite == 'cdr' ? 0 : 1;
+
+  void switchWebsite(String website) {
+    setState(() {
+      selectedWebsite = website;
+    });
   }
 
   @override
@@ -50,19 +48,14 @@ class _CdrDrawerState extends State<CdrDrawer> {
         ),
         child: Column(
           children: [
+            const SizedBox(height: 25,),
             SizedBox(
-              height: 250,
+              height: 200,
               child: NotificationListener<ScrollNotification>(
                 onNotification: (scrollNotification) {
                   if (scrollNotification is UserScrollNotification) {
                     setState(() {
-                      if (scrollNotification.direction == ScrollDirection.idle) {
-                        // User stopped interacting
-                        _isUserInteracting = false;
-                      } else {
-                        // User started interacting
-                        _isUserInteracting = true;
-                      }
+                      isUserInteracting = scrollNotification.direction != ScrollDirection.idle;
                     });
                   }
                   return false;
@@ -71,43 +64,35 @@ class _CdrDrawerState extends State<CdrDrawer> {
                   controller: _pageController,
                   onPageChanged: (index) {
                     if (index == 0) {
-                      controller.switchWebsite('cdr');
+                      switchWebsite('cdr');
                     } else {
-                      controller.switchWebsite('diit');
+                      switchWebsite('diit');
                     }
                   },
                   children: [
-                    _buildLogoPage(
+                    LogoPage(
                       website: 'cdr',
                       imagePath: 'assets/images/cdr_logo.png',
                       offset: -30,
                       hintShiftAmount: -10,
+                      isSelected: selectedWebsite == 'cdr',
+                      isUserInteracting: isUserInteracting,
                     ),
-                    _buildLogoPage(
+                    LogoPage(
                       website: 'diit',
                       imagePath: 'assets/images/diit_logo.png',
                       offset: 30,
                       hintShiftAmount: 10,
+                      isSelected: selectedWebsite == 'diit',
+                      isUserInteracting: isUserInteracting,
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            Obx(() {
-              return Text(
-                controller.selectedWebsite.value.toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              );
-            }),
-            const SizedBox(height: 20),
             Container(
               height: 42,
-              width: 200,
+              width: 210,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: const [
@@ -118,64 +103,78 @@ class _CdrDrawerState extends State<CdrDrawer> {
                   ),
                 ],
               ),
-              child: TextButton(
+              child: TextButton.icon(
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0x33FFFFFF),
                 ),
                 onPressed: () {
-                  // Perform some action here
+                  // Perform the action for bookmarks here
+                  Get.toNamed('/bookmarks');
                 },
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Text("Some Action"),
+                icon: const Icon(Icons.bookmark, color: Colors.black),
+                label: const Text(
+                  "Bookmarks",
+                  style: TextStyle(color: Colors.black),
                 ),
               ),
-            ),
+              ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildLogoPage({
-    required String website,
-    required String imagePath,
-    required double offset,
-    required double hintShiftAmount,
-  }) {
+class LogoPage extends StatelessWidget {
+  final String website;
+  final String imagePath;
+  final double offset;
+  final double hintShiftAmount;
+  final bool isSelected;
+  final bool isUserInteracting;
+
+  const LogoPage({
+    super.key,
+    required this.website,
+    required this.imagePath,
+    required this.offset,
+    required this.hintShiftAmount,
+    required this.isSelected,
+    required this.isUserInteracting,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        controller.switchWebsite(website);
+        final parentState = context.findAncestorStateOfType<_CdrDrawerState>();
+        parentState?.switchWebsite(website);
       },
       child: Center(
-        child: Obx(() {
-          bool isSelected = controller.selectedWebsite.value == website;
-
-          return AnimatedContainer(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          transform: Matrix4.translationValues(
+            offset * (isSelected ? 0 : 0.8),
+            0,
+            0,
+          ),
+          child: AnimatedScale(
+            scale: isSelected ? 1.2 : 0.8,
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeInOut,
-            transform: Matrix4.translationValues(
-              offset * (isSelected ? 0 : 0.8),
-              0,
-              0,
-            ),
-            child: AnimatedScale(
-              scale: isSelected ? 1.2 : 0.8,
+            child: AnimatedOpacity(
+              opacity: isSelected ? 1 : 0.6,
               duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-              child: AnimatedOpacity(
-                opacity: isSelected ? 1 : 0.6,
-                duration: const Duration(milliseconds: 500),
-                child: AnimatedLogo(
-                  imagePath: imagePath,
-                  isSelected: isSelected,
-                  hintShiftAmount: hintShiftAmount,
-                  isUserInteracting: _isUserInteracting,
-                ),
+              child: AnimatedLogo(
+                imagePath: imagePath,
+                isSelected: isSelected,
+                hintShiftAmount: hintShiftAmount,
+                isUserInteracting: isUserInteracting,
               ),
             ),
-          );
-        }),
+          ),
+        ),
       ),
     );
   }
@@ -188,15 +187,15 @@ class AnimatedLogo extends StatefulWidget {
   final bool isUserInteracting; // Flag to control animation
 
   const AnimatedLogo({
-    Key? key,
+    super.key,
     required this.imagePath,
     required this.isSelected,
     required this.hintShiftAmount,
     required this.isUserInteracting,
-  }) : super(key: key);
+  });
 
   @override
-  _AnimatedLogoState createState() => _AnimatedLogoState();
+  State<AnimatedLogo> createState() => _AnimatedLogoState();
 }
 
 class _AnimatedLogoState extends State<AnimatedLogo>
@@ -308,7 +307,7 @@ class _AnimatedLogoState extends State<AnimatedLogo>
         width: 200,
         height: 200,
         fit: BoxFit.contain,
-        filterQuality: FilterQuality.high,
+        filterQuality: FilterQuality.low,
       ),
     );
   }

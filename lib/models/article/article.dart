@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:get/get.dart'; // Import GetX package
 
 part 'article.g.dart';
 
@@ -8,7 +9,8 @@ class ArticleResponse {
 
   ArticleResponse({required this.articles});
 
-  factory ArticleResponse.fromJson(Map<String, dynamic> json) => _$ArticleResponseFromJson(json);
+  factory ArticleResponse.fromJson(Map<String, dynamic> json) =>
+      _$ArticleResponseFromJson(json);
   Map<String, dynamic> toJson() => _$ArticleResponseToJson(this);
 }
 
@@ -24,6 +26,9 @@ class Article {
   final String modified;
   final String author;
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  RxBool isBookmarked; // Make it RxBool
+
   Article({
     required this.articleSlug,
     required this.title,
@@ -33,8 +38,11 @@ class Article {
     required this.published,
     required this.modified,
     required this.author,
-  });
+    bool isBookmarked = false,
+  }) : isBookmarked = isBookmarked.obs; // Initialize as RxBool
 
-  factory Article.fromJson(Map<String, dynamic> json) => _$ArticleFromJson(json);
+  factory Article.fromJson(Map<String, dynamic> json) =>
+      _$ArticleFromJson(json);
+
   Map<String, dynamic> toJson() => _$ArticleToJson(this);
 }

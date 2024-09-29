@@ -1,5 +1,7 @@
 import 'package:cdr_app/screens/article/article.controller.dart';
 import 'package:cdr_app/screens/article/article.screen.dart';
+import 'package:cdr_app/screens/bookmarks/bookmark.controller.dart';
+import 'package:cdr_app/screens/bookmarks/bookmark.screen.dart';
 import 'package:cdr_app/screens/home/home.controller.dart';
 import 'package:cdr_app/screens/home/home.screen.dart';
 import 'package:get/get.dart';
@@ -19,12 +21,12 @@ var routes = [
       Get.lazyPut<ArticleScreenController>(() => ArticleScreenController());
     }),
   ),
-/*
+
   GetPage(
       name: '/bookmarks',
-      page: () => const SignInScreen(),
+      page: () => const BookmarkScreen(),
       binding: BindingsBuilder(() {
-        Get.lazyPut<SignInController>(() => SignInController());
+        Get.lazyPut<BookmarkController>(() => BookmarkController());
       })),
-  */
+
 ];

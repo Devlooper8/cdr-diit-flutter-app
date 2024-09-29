@@ -1,106 +1,51 @@
-// home.screen.dart
+// bookmark.screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../widgets/drawer.dart';
-import '../bookmarks/bookmark.controller.dart';
-import 'home.controller.dart'; // Import BookmarkController
+import 'bookmark.controller.dart';
 
-class HomeScreen extends GetView<HomeScreenController> {
-  const HomeScreen({super.key});
+class BookmarkScreen extends GetView<BookmarkController> {
+  const BookmarkScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final BookmarkController bookmarkController = Get.put(BookmarkController());
-
-    ScrollController scrollController = ScrollController();
-
-    scrollController.addListener(() {
-      if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent - 200 &&
-          !controller.isLoading.value) {
-        controller.loadMoreData(); // Fetch more data
-      }
-    });
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
-        title: Obx(() {
-          return controller.isSearching.value
-              ? TextField(
-            controller: controller.searchController,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: 'Search articles...',
-              border: InputBorder.none,
-              hintStyle: Theme.of(context).textTheme.bodyLarge,
-            ),
-            style: Theme.of(context).textTheme.bodyLarge,
-          )
-              : Text(
-            "Články",
-            style: Theme.of(context).textTheme.headlineLarge,
-          );
-        }),
-        actions: [
-          Obx(() {
-            return controller.isSearching.value
-                ? IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () {
-                controller.clearSearch();
-                controller.toggleSearch();
-              },
-            )
-                : IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                controller.toggleSearch();
-              },
-            );
-          }),
-        ],
+        title: Text(
+          "Bookmarked Articles",
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
       ),
-      drawer: const CdrDrawer(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Theme.of(context).scaffoldBackgroundColor,
-              Theme.of(context).colorScheme.surface
+              Theme.of(context).colorScheme.surface,
             ],
             begin: Alignment.bottomRight,
             end: Alignment.topLeft,
           ),
         ),
+        // Use Obx to observe changes in the bookmarked articles
         child: Obx(() {
-          if (controller.jsonDataList.isEmpty && controller.isLoading.value) {
-            return const Center(
-                child: CircularProgressIndicator());
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            itemCount: controller.jsonDataList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == controller.jsonDataList.length) {
-                return Obx(() {
-                  if (controller.isLoading.value) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                });
-              }
+          final bookmarkedArticles = controller.bookmarkedArticles;
 
-              final article = controller.jsonDataList[index];
+          if (bookmarkedArticles.isEmpty) {
+            return const Center(
+              child: Text("No bookmarked articles found."),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            itemCount: bookmarkedArticles.length,
+            itemBuilder: (context, index) {
+              final article = bookmarkedArticles[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: GestureDetector(
@@ -108,8 +53,8 @@ class HomeScreen extends GetView<HomeScreenController> {
                     Get.toNamed(
                       '/article',
                       parameters: {
-                        'slug': article.articleSlug.toString(),
-                        'modified': article.modified.toString(),
+                        'slug': article.articleSlug,
+                        'modified': article.modified,
                       },
                     );
                   },
@@ -181,20 +126,17 @@ class HomeScreen extends GetView<HomeScreenController> {
                                   ),
                                 ),
                                 // Bookmark icon
-                                Obx(() {
-                                  return IconButton(
-                                    icon: Icon(
-                                      bookmarkController.isBookmarked(article.articleSlug)
-                                          ? Icons.bookmark
-                                          : Icons.bookmark_border,
-                                      color: Theme.of(context).iconTheme.color,
-                                    ),
-                                    onPressed: () {
-                                      // Pass the entire article object to the controller
-                                      bookmarkController.toggleBookmark(article);
-                                    },
-                                  );
-                                }),
+                                IconButton(
+                                  icon: Icon(
+                                    controller.isBookmarked(article.articleSlug)
+                                        ? Icons.bookmark
+                                        : Icons.bookmark_border,
+                                    color: Theme.of(context).iconTheme.color,
+                                  ),
+                                  onPressed: () {
+                                    controller.toggleBookmark(article);
+                                  },
+                                ),
                               ],
                             ),
                           ),

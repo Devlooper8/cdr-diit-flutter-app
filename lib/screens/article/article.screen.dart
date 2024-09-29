@@ -1,13 +1,15 @@
-import 'package:cdr_app/themes.dart';
+// article.screen.dart
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'article.controller.dart';
+import '../bookmarks/bookmark.controller.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ArticleScreen extends GetView<ArticleScreenController> {
-  const ArticleScreen({super.key});
+  const ArticleScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,49 +23,36 @@ class ArticleScreen extends GetView<ArticleScreenController> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Theme.of(context)
-            .appBarTheme
-            .backgroundColor, // Use the theme color
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         leading: IconButton(
           icon: Icon(Icons.arrow_back,
-              color: Theme.of(context).appBarTheme.iconTheme?.color), // Use theme icon color
+              color: Theme.of(context).appBarTheme.iconTheme?.color),
           onPressed: () {
-            Get.back(); // Navigate back
+            Get.back();
           },
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.share,
-                color:
-                    Theme.of(context).appBarTheme.iconTheme?.color), // Use theme icon color
-            onPressed: () {
-              // Share the article using the Share package
-              /*controller.articleDetail.value.url != null
-                  ? Share.share(controller.articleDetail.value.url)
-                  : null;*/
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.bookmark,
-                color:
-                    Theme.of(context).appBarTheme.iconTheme?.color), // Use theme icon color
-            onPressed: () {
-              if (kDebugMode) {
-                print('Bookmarking article');
-              }
-            },
-          ),
+          Obx(() {
+            return IconButton(
+              icon: Icon(
+                controller.isArticleBookmarked()
+                    ? Icons.bookmark
+                    : Icons.bookmark_border,
+                color: Theme.of(context).appBarTheme.iconTheme?.color,
+              ),
+              onPressed: () {
+                controller.toggleBookmark();
+              },
+            );
+          }),
         ],
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Theme.of(context)
-                  .scaffoldBackgroundColor, // Use theme background color
-              Theme.of(context)
-                  .colorScheme
-                  .surface // Use theme secondary background color
+              Theme.of(context).scaffoldBackgroundColor,
+              Theme.of(context).colorScheme.surface,
             ],
             begin: Alignment.bottomRight,
             end: Alignment.topLeft,
@@ -88,7 +77,7 @@ class ArticleScreen extends GetView<ArticleScreenController> {
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     elevation: 4,
-                    color: Theme.of(context).cardColor, // Use theme card color
+                    color: Theme.of(context).cardColor,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -96,9 +85,7 @@ class ArticleScreen extends GetView<ArticleScreenController> {
                         children: [
                           Text(
                             article.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge, // Use theme text style
+                            style: Theme.of(context).textTheme.headlineLarge,
                           ),
                           const SizedBox(height: 16),
                           ClipRRect(
@@ -106,9 +93,9 @@ class ArticleScreen extends GetView<ArticleScreenController> {
                             child: CachedNetworkImage(
                               imageUrl: article.image,
                               placeholder: (context, url) =>
-                                  const CircularProgressIndicator(),
+                              const CircularProgressIndicator(),
                               errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
+                              const Icon(Icons.error),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -122,101 +109,52 @@ class ArticleScreen extends GetView<ArticleScreenController> {
                     children: [
                       Icon(
                         Icons.person,
-                        color: Theme.of(context)
-                            .iconTheme
-                            .color, // Use theme icon color
+                        color: Theme.of(context).iconTheme.color,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         'Author: ${article.author.name}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium, // Use theme text style
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // Card layout for the article content with modern design and rounded corners for images
+                  // Card layout for the article content
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     elevation: 4,
-                    color: Theme.of(context).cardColor, // Use theme card color
+                    color: Theme.of(context).cardColor,
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: HtmlWidget(
                         article.content,
-                        customStylesBuilder: (element) {
-                          if (element.localName == 'p') {
-                            return {
-                              'color': Theme.of(context).textTheme.bodyLarge!.color!.toHex(),
-                              'margin': '16px 0',
-                              'line-height': '1.6',
-                              'text-align': 'left',
-                              'font-size': '16px',
-                            };
-                          }
-
-                          if (element.localName == 'h1' || element.localName == 'h2') {
-                            return {
-                              'font-weight': 'bold',
-                              'margin': '24px 0',
-                              'color': Theme.of(context).textTheme.headlineLarge!.color!.toHex(),
-                            };
-                          }
-
-                          if (element.localName == 'a') {
-                            return {
-                              'color': Theme.of(context).colorScheme.secondary.toHex(),
-                              'text-decoration': 'none',
-                            };
-                          }
-
-                          return null;
-                        },
-                        customWidgetBuilder: (element) {
-                          if (element.localName == 'img') {
-                            final imageUrl = element.attributes['src'] ?? '';
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(15.0),
-                              child: CachedNetworkImage(
-                                imageUrl: imageUrl,
-                                placeholder: (context, url) => const CircularProgressIndicator(),
-                                errorWidget: (context, url, error) => const Icon(Icons.error),
-                              ),
-                            );
-                          }
-                          return null;
-                        },
                         textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-                  // Button to show link for the article (if needed)
+                  // Button to open the original article (if needed)
                   Center(
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context)
-                            .primaryColor, // Use theme primary color
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
+                        backgroundColor: Theme.of(context).primaryColor,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      icon: const Icon(Icons.open_in_browser,
-                          color: Colors.white),
+                      icon: const Icon(Icons.open_in_browser, color: Colors.white),
                       label: const Text(
                         'Open Original Article',
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                       onPressed: () {
-                        // Handle button tap to open the original article
+                        // Handle button tap to open the original article URL
+                        // You can use url_launcher package to open the link
                       },
                     ),
                   ),
@@ -227,14 +165,5 @@ class ArticleScreen extends GetView<ArticleScreenController> {
         }),
       ),
     );
-  }
-
-  // A helper method to launch URLs
-  void launchUrl(String url) {
-    // Use url_launcher or any other method to open the URL in the browser
-    if (kDebugMode) {
-      print("Opening URL: $url");
-    }
-    // Example: launch(url); (You can add url_launcher package to handle this)
   }
 }
