@@ -1,15 +1,13 @@
 // article.screen.dart
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'article.controller.dart';
-import '../bookmarks/bookmark.controller.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ArticleScreen extends GetView<ArticleScreenController> {
-  const ArticleScreen({Key? key}) : super(key: key);
+  const ArticleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +33,7 @@ class ArticleScreen extends GetView<ArticleScreenController> {
           Obx(() {
             return IconButton(
               icon: Icon(
-                controller.isArticleBookmarked()
+                controller.isBookmarked.value
                     ? Icons.bookmark
                     : Icons.bookmark_border,
                 color: Theme.of(context).appBarTheme.iconTheme?.color,

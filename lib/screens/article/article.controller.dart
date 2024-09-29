@@ -19,11 +19,22 @@ class ArticleScreenController extends GetxController {
   ).obs;
 
   var isLoading = true.obs;
+  final isBookmarked = false.obs; // Observable to track bookmark status
   final BookmarkController bookmarkController = Get.find();
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    // Retrieve slug from Get.parameters and initialize the bookmark status
+    final slug = Get.parameters['slug'] ?? '';
+    isBookmarked.value = bookmarkController.isBookmarked(slug);
+  }
 
   Future<void> fetchArticle(String slug, String modified) async {
     try {
       isLoading.value = true;
+
       final url = 'https://tomino.v2.sk/article/$slug?modified=$modified';
       final response = await http.get(Uri.parse(url));
 
@@ -44,22 +55,19 @@ class ArticleScreenController extends GetxController {
     }
   }
 
-  bool isArticleBookmarked() {
-    return bookmarkController.isBookmarked(articleDetail.value.slug);
-  }
-
   void toggleBookmark() {
-    // Convert the ArticleDetail to Article for bookmarking
     final article = articleDetail.value.toArticle();
     bookmarkController.toggleBookmark(article);
+    isBookmarked.value = !isBookmarked.value; // Update the local bookmark state
   }
 }
+
 extension ArticleDetailExtension on ArticleDetail {
   Article toArticle() {
     return Article(
       articleSlug: slug,
       title: title,
-      description: '', // If you want, you can add this field
+      description: '', // Add if necessary
       image: image,
       url: '', // If you have a url field
       published: '', // If needed
