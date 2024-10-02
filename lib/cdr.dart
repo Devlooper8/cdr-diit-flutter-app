@@ -1,5 +1,4 @@
 import 'package:cdr_app/bindings.dart';
-import 'package:cdr_app/screens/home/home.controller.dart';
 import 'package:cdr_app/screens/home/home.screen.dart';
 import 'package:cdr_app/themes.dart';
 import 'package:flutter/gestures.dart';

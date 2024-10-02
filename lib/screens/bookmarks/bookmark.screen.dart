@@ -6,7 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'bookmark.controller.dart';
 
 class BookmarkScreen extends GetView<BookmarkController> {
-  const BookmarkScreen({Key? key}) : super(key: key);
+  const BookmarkScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
