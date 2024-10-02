@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../models/article/article.dart';
-import '../../models/article/article_detail.dart';
+import '../../models/article_detail/article_detail.dart';
 import '../bookmarks/bookmark.controller.dart'; // Import BookmarkController
 
 class ArticleScreenController extends GetxController {
