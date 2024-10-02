@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../widgets/drawer.dart';
+import '../../widgets/drawer/drawer.dart';
 import '../bookmarks/bookmark.controller.dart';
 import 'home.controller.dart'; // Import BookmarkController
 
@@ -86,6 +86,7 @@ class HomeScreen extends GetView<HomeScreenController> {
             controller: scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             itemCount: controller.jsonDataList.length + 1,
+            cacheExtent: controller.jsonDataList.length + 1,
             itemBuilder: (context, index) {
               if (index == controller.jsonDataList.length) {
                 return Obx(() {
@@ -128,10 +129,10 @@ class HomeScreen extends GetView<HomeScreenController> {
                             borderRadius: BorderRadius.circular(15),
                             child: CachedNetworkImage(
                               imageUrl: article.image,
-                              maxHeightDiskCache: 100,
-                              memCacheHeight: 100,
-                              maxWidthDiskCache: 100,
-                              memCacheWidth: 100,
+                              maxHeightDiskCache: 90,
+                              memCacheHeight: 90,
+                              maxWidthDiskCache: 90,
+                              memCacheWidth: 90,
                               width: 90,
                               height: 90,
                               fit: BoxFit.cover,

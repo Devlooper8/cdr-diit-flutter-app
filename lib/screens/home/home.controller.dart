@@ -13,17 +13,17 @@ class HomeScreenController extends GetxController {
   var isSearching = false.obs;
   final TextEditingController searchController = TextEditingController();
 
-  var bookmarkedArticles = <String>{}.obs; // Add this
+  var bookmarkedArticles = <Article>[].obs; // Store full Article objects
   final storage = GetStorage(); // For persistent storage
 
   @override
   void onInit() {
     super.onInit();
-    // Initialize GetStorage if not already done
     // Load bookmarked articles from storage
     List<dynamic>? storedBookmarks = storage.read('bookmarkedArticles');
     if (storedBookmarks != null) {
-      bookmarkedArticles.addAll(storedBookmarks.cast<String>());
+      // Deserialize each stored bookmark to an Article
+      bookmarkedArticles.value = storedBookmarks.map((e) => Article.fromJson(e)).toList();
     }
     fetchData(); // Fetch initial data
   }
@@ -44,21 +44,29 @@ class HomeScreenController extends GetxController {
   }
 
   // Method to toggle bookmark
-  void toggleBookmark(String articleSlug) {
-    if (bookmarkedArticles.contains(articleSlug)) {
-      bookmarkedArticles.remove(articleSlug);
+  void toggleBookmark(Article article) {
+    final existingArticle = bookmarkedArticles.firstWhereOrNull((a) => a.articleSlug == article.articleSlug);
+    if (existingArticle != null) {
+      bookmarkedArticles.remove(existingArticle);
     } else {
-      bookmarkedArticles.add(articleSlug);
+      bookmarkedArticles.add(article);
     }
-    // Save updated bookmarks to storage
-    storage.write('bookmarkedArticles', bookmarkedArticles.toList());
+
+    // Sort the list by the modified date in descending order, parsing strings to DateTime
+    bookmarkedArticles.sort((a, b) => DateTime.parse(b.modified).compareTo(DateTime.parse(a.modified)));
+
+    // Save updated bookmarks to storage (serialize each Article to JSON)
+    storage.write('bookmarkedArticles', bookmarkedArticles.map((e) => e.toJson()).toList());
+
     // Update the article's isBookmarked property
-    var articleIndex = jsonDataList.indexWhere((a) => a.articleSlug == articleSlug);
+    var articleIndex = jsonDataList.indexWhere((a) => a.articleSlug == article.articleSlug);
     if (articleIndex != -1) {
-      jsonDataList[articleIndex].isBookmarked.value = bookmarkedArticles.contains(articleSlug);
+      jsonDataList[articleIndex].isBookmarked.value = bookmarkedArticles.any((a) => a.articleSlug == article.articleSlug);
       jsonDataList.refresh(); // Refresh the list to update UI
     }
   }
+
+
 
   // Fetch data for a given page and append to the list
   Future<void> fetchData([int page = 0]) async {
@@ -75,7 +83,7 @@ class HomeScreenController extends GetxController {
 
         // Update isBookmarked based on bookmarkedArticles
         for (var article in articleResponse.articles) {
-          article.isBookmarked.value = bookmarkedArticles.contains(article.articleSlug);
+          article.isBookmarked.value = bookmarkedArticles.any((a) => a.articleSlug == article.articleSlug);
         }
 
         // Append the new articles to the list

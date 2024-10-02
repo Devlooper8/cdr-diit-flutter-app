@@ -10,9 +10,9 @@ var routes = [
   GetPage(
     name: '/',
     page: () => const HomeScreen(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<HomeScreenController>(() => HomeScreenController());
-      })
+    binding: BindingsBuilder(() {
+      Get.lazyPut<HomeScreenController>(() => HomeScreenController());
+    }),
   ),
   GetPage(
     name: '/article',
@@ -21,12 +21,11 @@ var routes = [
       Get.lazyPut<ArticleScreenController>(() => ArticleScreenController());
     }),
   ),
-
   GetPage(
-      name: '/bookmarks',
-      page: () => const BookmarkScreen(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<BookmarkController>(() => BookmarkController());
-      })),
-
+    name: '/bookmarks',
+    page: () => const BookmarkScreen(),
+    binding: BindingsBuilder(() {
+      Get.lazyPut<BookmarkController>(() => BookmarkController());
+    }),
+  ),
 ];

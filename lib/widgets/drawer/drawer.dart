@@ -2,41 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'drawer.controller.dart' as custom;
 
-class CdrDrawer extends StatefulWidget {
+class CdrDrawer extends GetWidget<custom.DrawerController> {
   const CdrDrawer({super.key});
 
   @override
-  State<CdrDrawer> createState() => _CdrDrawerState();
-}
-
-class _CdrDrawerState extends State<CdrDrawer> {
-  String selectedWebsite = 'cdr';
-  bool isUserInteracting = false;
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(initialPage: selectedIndex);
-  }
-
-  int get selectedIndex => selectedWebsite == 'cdr' ? 0 : 1;
-
-  void switchWebsite(String website) {
-    setState(() {
-      selectedWebsite = website;
-    });
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose(); // Dispose to prevent memory leaks
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Get the drawer controller
     return SizedBox(
       width: 320,
       child: Drawer(
@@ -48,48 +21,47 @@ class _CdrDrawerState extends State<CdrDrawer> {
         ),
         child: Column(
           children: [
-            const SizedBox(height: 25,),
+            const SizedBox(height: 25),
             SizedBox(
               height: 200,
               child: NotificationListener<ScrollNotification>(
                 onNotification: (scrollNotification) {
                   if (scrollNotification is UserScrollNotification) {
-                    setState(() {
-                      isUserInteracting = scrollNotification.direction != ScrollDirection.idle;
-                    });
+                    controller.setUserInteracting(
+                      scrollNotification.direction != ScrollDirection.idle,
+                    );
                   }
                   return false;
                 },
-                child: PageView(
-                  controller: _pageController,
-                  onPageChanged: (index) {
-                    if (index == 0) {
-                      switchWebsite('cdr');
-                    } else {
-                      switchWebsite('diit');
-                    }
-                  },
-                  children: [
-                    LogoPage(
-                      website: 'cdr',
-                      imagePath: 'assets/images/cdr_logo.png',
-                      offset: -30,
-                      hintShiftAmount: -10,
-                      isSelected: selectedWebsite == 'cdr',
-                      isUserInteracting: isUserInteracting,
-                    ),
-                    LogoPage(
-                      website: 'diit',
-                      imagePath: 'assets/images/diit_logo.png',
-                      offset: 30,
-                      hintShiftAmount: 10,
-                      isSelected: selectedWebsite == 'diit',
-                      isUserInteracting: isUserInteracting,
-                    ),
-                  ],
-                ),
+                child: Obx(() {
+                  return PageView(
+                    controller: controller.pageController,
+                    onPageChanged: (index) {
+                      controller.switchWebsite(index == 0 ? 'cdr' : 'diit');
+                    },
+                    children: [
+                      LogoPage(
+                        website: 'cdr',
+                        imagePath: 'assets/images/cdr_logo.png',
+                        offset: -30,
+                        hintShiftAmount: -10,
+                        isSelected: controller.selectedWebsite.value == 'cdr',
+                        isUserInteracting: controller.isUserInteracting.value,
+                      ),
+                      LogoPage(
+                        website: 'diit',
+                        imagePath: 'assets/images/diit_logo.png',
+                        offset: 30,
+                        hintShiftAmount: 10,
+                        isSelected: controller.selectedWebsite.value == 'diit',
+                        isUserInteracting: controller.isUserInteracting.value,
+                      ),
+                    ],
+                  );
+                }),
               ),
             ),
+            // Bookmarks button
             Container(
               height: 42,
               width: 210,
@@ -108,7 +80,6 @@ class _CdrDrawerState extends State<CdrDrawer> {
                   backgroundColor: const Color(0x33FFFFFF),
                 ),
                 onPressed: () {
-                  // Perform the action for bookmarks here
                   Get.toNamed('/bookmarks');
                 },
                 icon: const Icon(Icons.bookmark, color: Colors.black),
@@ -117,13 +88,48 @@ class _CdrDrawerState extends State<CdrDrawer> {
                   style: TextStyle(color: Colors.black),
                 ),
               ),
+            ),
+            const SizedBox(height: 20),
+            // Theme toggle button
+            Container(
+              height: 42,
+              width: 210,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x26000000),
+                    blurRadius: 5,
+                    blurStyle: BlurStyle.outer,
+                  ),
+                ],
               ),
+              child: Obx(() {
+                return TextButton.icon(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color(0x33FFFFFF),
+                  ),
+                  onPressed: controller.toggleTheme,
+                  icon: Icon(
+                    controller.isDarkMode.value
+                        ? Icons.nights_stay
+                        : Icons.wb_sunny,
+                    color: Colors.black,
+                  ),
+                  label: Text(
+                    controller.isDarkMode.value ? "Dark Mode" : "Light Mode",
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                );
+              }),
+            ),
           ],
         ),
       ),
     );
   }
 }
+
 
 class LogoPage extends StatelessWidget {
   final String website;
@@ -145,10 +151,11 @@ class LogoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final drawerController = Get.find<custom.DrawerController>();
+
     return GestureDetector(
       onTap: () {
-        final parentState = context.findAncestorStateOfType<_CdrDrawerState>();
-        parentState?.switchWebsite(website);
+        drawerController.switchWebsite(website);
       },
       child: Center(
         child: AnimatedContainer(
@@ -183,8 +190,8 @@ class LogoPage extends StatelessWidget {
 class AnimatedLogo extends StatefulWidget {
   final String imagePath;
   final bool isSelected;
-  final double hintShiftAmount; // Positive for right, negative for left
-  final bool isUserInteracting; // Flag to control animation
+  final double hintShiftAmount;
+  final bool isUserInteracting;
 
   const AnimatedLogo({
     super.key,
@@ -218,14 +225,12 @@ class _AnimatedLogoState extends State<AnimatedLogo>
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
-    // Start the animation immediately after the first frame is rendered
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.isSelected && !widget.isUserInteracting) {
         _runHintAnimation();
       }
     });
 
-    // Start the periodic animation
     _startPeriodicAnimation();
   }
 
@@ -256,7 +261,6 @@ class _AnimatedLogoState extends State<AnimatedLogo>
     super.didUpdateWidget(oldWidget);
 
     if (widget.hintShiftAmount != oldWidget.hintShiftAmount) {
-      // Update the shift animation with the new hint shift amount
       _shiftAnimation = Tween<double>(begin: 0, end: widget.hintShiftAmount)
           .animate(
         CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
@@ -265,21 +269,16 @@ class _AnimatedLogoState extends State<AnimatedLogo>
 
     if (widget.isSelected != oldWidget.isSelected) {
       if (widget.isSelected && !widget.isUserInteracting) {
-        // If now selected and user is not interacting, run the animation immediately
         _runHintAnimation();
       } else {
-        // Reset animation if the logo is no longer selected
         _animationController.reset();
       }
     }
 
-    // Check if user interaction has changed
     if (widget.isUserInteracting != oldWidget.isUserInteracting) {
       if (!widget.isUserInteracting && widget.isSelected) {
-        // User stopped interacting, resume animation
         _runHintAnimation();
       } else if (widget.isUserInteracting) {
-        // User started interacting, stop animation
         _animationController.reset();
       }
     }

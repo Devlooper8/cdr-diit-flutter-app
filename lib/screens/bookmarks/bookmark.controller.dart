@@ -27,9 +27,14 @@ class BookmarkController extends GetxController {
       bookmarkedArticles.add(article);
     }
 
+    // Sort the list by the modified date in descending order, parsing strings to DateTime
+    bookmarkedArticles.sort((a, b) => DateTime.parse(b.modified).compareTo(DateTime.parse(a.modified)));
+
     // Save the updated list of bookmarks to local storage (serialize the articles)
     storage.write('bookmarkedArticles', bookmarkedArticles.map((e) => e.toJson()).toList());
   }
+
+
 
   bool isBookmarked(String slug) {
     return bookmarkedArticles.any((article) => article.articleSlug == slug);

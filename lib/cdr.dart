@@ -1,3 +1,4 @@
+import 'package:cdr_app/bindings.dart';
 import 'package:cdr_app/screens/home/home.controller.dart';
 import 'package:cdr_app/screens/home/home.screen.dart';
 import 'package:cdr_app/themes.dart';
@@ -15,9 +16,7 @@ class Cdr extends StatelessWidget {
     return GetMaterialApp(
         key: Get.nestedKey(0),
         getPages: routes,
-        initialBinding: BindingsBuilder(() {
-          Get.lazyPut<HomeScreenController>(() => HomeScreenController());
-        }),
+        initialBinding: GlobalBindings(),
         scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>(),
         popGesture: false,
         scrollBehavior: const MaterialScrollBehavior()
