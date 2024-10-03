@@ -1,5 +1,6 @@
 import 'package:cdr_app/bindings.dart';
 import 'package:cdr_app/screens/home/home.screen.dart';
+import 'package:cdr_app/themes.controller.dart';
 import 'package:cdr_app/themes.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class Cdr extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeController themeController = Get.find();
     return GetMaterialApp(
         key: Get.nestedKey(0),
         getPages: routes,
@@ -23,7 +25,7 @@ class Cdr extends StatelessWidget {
         title: "CDR.CZ",
         theme: Themes.lightTheme,  // Set the light theme here
         darkTheme: Themes.darkTheme,  // Set the dark theme here
-        themeMode: ThemeMode.light,
+        themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
         // home: const SignInScreen(),
         home: const HomeScreen(),
     );

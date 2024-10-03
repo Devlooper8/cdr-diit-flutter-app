@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../themes.controller.dart';
 
 class DrawerController extends GetxController {
   var selectedWebsite = 'cdr'.obs;
-  var isDarkMode = Get.isDarkMode.obs;
   var isUserInteracting = false.obs;
+  final ThemeController themeController = Get.find();
 
   int get selectedIndex => selectedWebsite.value == 'cdr' ? 0 : 1;
 
@@ -21,8 +22,7 @@ class DrawerController extends GetxController {
   }
 
   void toggleTheme() {
-    isDarkMode.value = !isDarkMode.value;
-    Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
+    themeController.toggleTheme();
   }
 
   void setUserInteracting(bool isInteracting) {

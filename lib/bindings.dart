@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 class GlobalBindings extends Bindings {
   @override
   void dependencies() {
-   Get.lazyPut<HomeScreenController>(()=>HomeScreenController());
+    Get.lazyPut<HomeScreenController>(()=>HomeScreenController());
    Get.lazyPut<DrawerController>(() => DrawerController());
   }
 }

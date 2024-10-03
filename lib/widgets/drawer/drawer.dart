@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import '../../themes.controller.dart';
 import 'drawer.controller.dart' as custom;
 
 class CdrDrawer extends GetWidget<custom.DrawerController> {
@@ -9,6 +10,7 @@ class CdrDrawer extends GetWidget<custom.DrawerController> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeController themeController = Get.find();
     // Get the drawer controller
     return SizedBox(
       width: 320,
@@ -80,6 +82,7 @@ class CdrDrawer extends GetWidget<custom.DrawerController> {
                   backgroundColor: const Color(0x33FFFFFF),
                 ),
                 onPressed: () {
+                  Get.back();
                   Get.toNamed('/bookmarks');
                 },
                 icon: const Icon(Icons.bookmark, color: Colors.black),
@@ -111,13 +114,13 @@ class CdrDrawer extends GetWidget<custom.DrawerController> {
                   ),
                   onPressed: controller.toggleTheme,
                   icon: Icon(
-                    controller.isDarkMode.value
+                    themeController.isDarkMode.value
                         ? Icons.nights_stay
                         : Icons.wb_sunny,
                     color: Colors.black,
                   ),
                   label: Text(
-                    controller.isDarkMode.value ? "Dark Mode" : "Light Mode",
+                    themeController.isDarkMode.value ? "Dark Mode" : "Light Mode",
                     style: const TextStyle(color: Colors.black),
                   ),
                 );
